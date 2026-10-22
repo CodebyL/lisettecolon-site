@@ -1,0 +1,22 @@
+<!--meta title=Checkout · Lisette Colon|desc=Review a service, the amount due now and any future charges before paying securely with Stripe.|nav=pay|js={R}assets/js/checkout.js-->
+<div class="wrap">
+  <section class="page-hero" aria-labelledby="t">
+    <a class="link small" href="{R}services.html">&larr; Services and prices</a>
+    <span class="label">Review before you pay</span>
+    <h1 class="d2" id="t">Checkout</h1>
+  </section>
+  <div class="split" style="padding-bottom:var(--s9)">
+    <div class="panel stack" id="co-summary" aria-live="polite">
+      <p class="body">Loading the service…</p>
+    </div>
+    <form class="panel form" id="co-form" novalidate hidden>
+      <fieldset class="field" id="co-options" hidden><legend id="co-options-l">Payment option</legend><div class="stack-sm" id="co-options-list" style="margin-top:8px"></div></fieldset>
+      <div class="field"><label for="co-biz">Business name</label><input class="input" id="co-biz" name="business" autocomplete="organization" required><span class="err" hidden></span></div>
+      <div class="field"><label for="co-email">Email for receipts</label><input class="input" id="co-email" name="email" type="email" autocomplete="email" required><span class="err" hidden></span></div>
+      <div class="field"><label class="small" style="display:flex;gap:12px;align-items:flex-start;font-weight:400"><input type="checkbox" id="co-terms" required style="margin-top:5px;width:18px;height:18px;flex:none"> <span>I've read the <a class="link" href="{R}legal/payments.html" target="_blank" rel="noopener">payment and cancellation terms</a> and the <a class="link" href="{R}legal/terms.html" target="_blank" rel="noopener">terms of service</a>.</span></label><span class="err" hidden></span></div>
+      <button class="btn" type="submit" id="co-pay">Continue to secure payment</button>
+      <p class="status" role="status" hidden></p>
+      <p class="small muted">You'll finish on Stripe's secure page. Your payment is recorded only after Stripe confirms it.</p>
+    </form>
+  </div>
+</div>

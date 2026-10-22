@@ -1,0 +1,46 @@
+<!--meta title=Client account · Lisette Colon|desc=Sign in to see your projects, agreements, invoices, payments and plans.|nav=login|noindex=1|js=https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js,{R}assets/js/app-common.js,{R}assets/js/account.js-->
+<div class="wrap" id="acct">
+  <section class="page-hero" id="signin-view" aria-labelledby="si-t" style="max-width:560px;padding-bottom:var(--s9)">
+    <span class="label">Client account</span>
+    <h1 class="d2" id="si-t">Sign in</h1>
+    <p class="body">See your projects, agreements, invoices, receipts and plans. New clients get an invitation by email.</p>
+    <p class="status info" id="cfg-note" hidden>Client accounts are being set up and aren't open yet. For anything about your project, email hi@lisettecolon.com.</p>
+    <form class="panel form" id="signin-form" novalidate>
+      <div class="field"><label for="si-email">Email</label><input class="input" id="si-email" type="email" autocomplete="email" required><span class="err" hidden></span></div>
+      <div class="field"><label for="si-pass">Password</label><input class="input" id="si-pass" type="password" autocomplete="current-password"><span class="hint">Or leave it empty and use an email link.</span></div>
+      <div class="actions"><button class="btn" type="submit" data-act="password">Sign in</button><button class="btn ghost" type="button" id="si-link">Email me a sign-in link</button></div>
+      <button class="link small" type="button" id="si-forgot" style="background:none;border:0;padding:0;cursor:pointer;align-self:flex-start">Forgot your password?</button>
+      <p class="status" role="status" hidden></p>
+    </form>
+  </section>
+
+  <section class="page-hero" id="setpass-view" hidden aria-labelledby="sp-t" style="max-width:560px;padding-bottom:var(--s9)">
+    <span class="label">Client account</span>
+    <h1 class="d2" id="sp-t">Choose a password</h1>
+    <form class="panel form" id="setpass-form" novalidate>
+      <div class="field"><label for="sp-pass">New password</label><input class="input" id="sp-pass" type="password" autocomplete="new-password" minlength="10" required><span class="hint">At least 10 characters.</span><span class="err" hidden></span></div>
+      <button class="btn" type="submit">Save password</button>
+      <p class="status" role="status" hidden></p>
+    </form>
+  </section>
+
+  <div id="app-view" hidden>
+    <div class="page-hero" style="padding-bottom:0">
+      <div class="head-row"><div class="stack-sm"><span class="label" id="who"></span><h1 class="d2" id="biz-name">Your account</h1></div>
+      <div class="actions"><label class="sr" for="client-pick">Business</label><select class="select" id="client-pick" hidden style="width:auto"></select><button class="btn ghost sm" type="button" id="signout">Sign out</button></div></div>
+    </div>
+    <div class="app">
+      <nav class="app-nav" aria-label="Account sections">
+        <button type="button" data-tab="overview" aria-current="true">Overview</button>
+        <button type="button" data-tab="projects">Projects</button>
+        <button type="button" data-tab="documents">Proposals and agreements</button>
+        <button type="button" data-tab="billing">Invoices and payments</button>
+        <button type="button" data-tab="plans">Plans</button>
+        <button type="button" data-tab="bookings">Meetings</button>
+        <button type="button" data-tab="support">Support</button>
+        <button type="button" data-tab="profile">Contact details</button>
+      </nav>
+      <div id="panels" aria-live="polite"></div>
+    </div>
+  </div>
+</div>

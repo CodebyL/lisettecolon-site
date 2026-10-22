@@ -1,0 +1,24 @@
+<!--meta title=Admin · Lisette Colon|desc=Private admin.|nav=none|noindex=1|js=https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js,{R}assets/js/app-common.js,{R}assets/js/admin.js-->
+<div class="wrap">
+  <section class="page-hero" id="gate" style="max-width:560px;padding-bottom:var(--s9)">
+    <span class="label">Admin</span>
+    <h1 class="d2">Admin sign-in</h1>
+    <p class="body" id="gate-msg">Sign in on the <a class="link" href="../account/index.html">client account page</a> with your admin email, then come back here.</p>
+  </section>
+  <div id="admin" hidden>
+    <div class="page-hero" style="padding-bottom:0"><div class="head-row"><h1 class="d2">Admin</h1><div class="actions"><a class="link small" href="https://dashboard.stripe.com/test/payments" target="_blank" rel="noopener">Stripe dashboard (test)</a><button class="btn ghost sm" type="button" id="signout">Sign out</button></div></div></div>
+    <div class="app">
+      <nav class="app-nav" aria-label="Admin sections">
+        <button type="button" data-tab="inquiries" aria-current="true">Inquiries</button>
+        <button type="button" data-tab="clients">Clients and invites</button>
+        <button type="button" data-tab="projects">Projects</button>
+        <button type="button" data-tab="money">Invoices and payments</button>
+        <button type="button" data-tab="plans">Plans</button>
+        <button type="button" data-tab="orders">Online orders</button>
+        <button type="button" data-tab="bookings">Meetings</button>
+        <button type="button" data-tab="support">Support requests</button>
+      </nav>
+      <div id="panels" aria-live="polite"></div>
+    </div>
+  </div>
+</div>
