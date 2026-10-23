@@ -49,7 +49,13 @@
     $("co-options-list").innerHTML=item.options.map(function(o,i){return '<label class="option"><input type="radio" name="option" value="'+o.id+'"'+(i===0?" checked":"")+'><span>'+esc(o.label)+'<small>'+money(o.now)+' now</small></span></label>'}).join("");
     $("co-options-list").addEventListener("change",function(e){opt=item.options.filter(function(o){return o.id===e.target.value})[0];draw()});
   }
-  draw(); form.hidden=false;
+  draw();
+  if(CFG.payments===false){
+    var svc={"website-starter":"website","website-standard":"website","website-premium":"website","photo-session":"photo","drone":"photo","logo":"website","gbp":"marketing","local-search":"marketing","local-visibility":"marketing","update-hour":"care","care-hosting":"care","care-care":"care","care-plus":"care"}[key]||"other";
+    sum.insertAdjacentHTML("beforeend",'<p class="body">Online payment is being set up. Ask about this service and I\'ll send you a secure payment link.</p><div class="actions"><a class="btn" href="book.html?service='+svc+'#quote">Ask about booking</a><span class="small muted">Or call or text (917) 960-4871</span></div>');
+    return;
+  }
+  form.hidden=false;
   var pay=$("co-pay"), status=form.querySelector(".status");
   function show(k,m){status.className="status "+k;status.textContent=m;status.hidden=false}
   form.addEventListener("submit",function(e){

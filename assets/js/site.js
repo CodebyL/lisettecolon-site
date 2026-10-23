@@ -177,6 +177,17 @@
       data.kind = form.getAttribute("data-kind") || "inquiry";
       data.page = location.pathname;
       submit.disabled = true; submit.textContent = "Sending…";
+      if (!CFG.functionsUrl && CFG.contactMode === "email") {
+        // Not connected to a server yet: open the visitor's email app with the details filled in.
+        var lines = [];
+        var names = { name: "Name", business: "Business", email: "Email", phone: "Phone", website: "Website", location: "Location", format: "Meeting format", availability: "Usually free", service: "Service", message: "Message" };
+        Object.keys(names).forEach(function (k) { if (data[k]) lines.push(names[k] + ": " + data[k]); });
+        var subj = (data.kind === "quote" ? "Quote request" : "Consultation request") + (data.business ? " from " + data.business : "");
+        submit.disabled = false; submit.textContent = label;
+        show("info", "Your email app should open with this message ready to send. If it doesn't, email hi@lisettecolon.com or call or text (917) 960-4871.");
+        window.location.href = "mailto:hi@lisettecolon.com?subject=" + encodeURIComponent(subj) + "&body=" + encodeURIComponent(lines.join("\n"));
+        return;
+      }
       if (!CFG.functionsUrl) {
         setTimeout(function () {
           submit.disabled = false; submit.textContent = label;

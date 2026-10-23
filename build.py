@@ -14,10 +14,26 @@ THEMES = {
 }
 FONTS = ""
 THEME_COLOR = "#faf7f5"
+LAUNCH = os.environ.get("LAUNCH") == "1"
+# What is switched on in the launch build. Turn each on once it is connected and tested.
+FEATURES = {"accounts": False, "payments": False}
+PRIVATE = {"account/index.html", "admin/index.html", "checkout.html", "thanks.html", "pay.html", "404.html"}
+SERVICE_FOR = {"website-starter":"website","website-standard":"website","website-premium":"website","care-hosting":"care","care-care":"care","care-plus":"care",
+  "logo":"website","update-hour":"care","photo-session":"photo","drone":"photo","gbp":"marketing","local-search":"marketing","local-visibility":"marketing"}
+def launch_edits(rel, body):
+    if not FEATURES["payments"]:
+        body = re.sub(r'href="(\{R\}|[./]*)checkout\.html\?item=([a-z-]+)">[^<]+<', lambda m: f'href="{m.group(1)}book.html?service={SERVICE_FOR.get(m.group(2),"other")}#quote">Ask about booking<', body)
+        body = body.replace("Fixed-price work can be reserved here without a meeting. Every deposit counts toward the total, and you see the full amount, what's due now and any future charges before you pay.",
+                            "Online booking and payment are being set up. For now, ask about any service with the quote form, by phone or by text, and I'll send a secure payment link. Every deposit counts toward the total.")
+        body = body.replace('<p class="body">Have an invoice from me? <a class="link" href="{R}pay.html">Pay an invoice</a>.</p>', "")
+        body = body.replace('You pay the deposit and send your logo, photos and details. Your client account opens.', 'You pay the deposit and send your logo, photos and details.')
+    return body
 NAV = [("services","Services","services.html"),("tools","Business tools","business-tools.html"),("work","Work","work.html"),("about","About","about.html")]
 
 def head(meta, r):
-    robots = '<meta name="robots" content="noindex, nofollow">' if meta.get("noindex","1")=="1" else ""
+    noindex = meta.get("noindex","1")=="1"
+    if LAUNCH: noindex = meta.get("_rel") in PRIVATE
+    robots = '<meta name="robots" content="noindex, nofollow">' if noindex else ""
     return f'''<!doctype html>
 <html lang="en">
 <head>
@@ -41,7 +57,7 @@ def header(meta, r):
   <div class="wrap">
     <a class="brand" href="{r}index.html">Lisette Colon</a>
     <nav class="nav" aria-label="Main">{links}</nav>
-    <a class="login-link" href="{r}account/index.html">Client login</a>
+    {"" if LAUNCH and not FEATURES["accounts"] else f'<a class="login-link" href="{r}account/index.html">Client login</a>'}
     <a class="btn sm" href="{r}book.html">Book a consultation</a>
     <button class="menu-btn" type="button" aria-expanded="false" aria-controls="mobile-nav"><span>Menu</span></button>
   </div>
@@ -49,7 +65,7 @@ def header(meta, r):
 <nav class="mobile-nav" id="mobile-nav" aria-label="Main" hidden>
   <a href="{r}index.html">Home</a>{mlinks}
   <a class="btn" href="{r}book.html">Book a consultation</a>
-  <a class="login-link" href="{r}account/index.html">Client login</a>
+  {"" if LAUNCH and not FEATURES["accounts"] else f'<a class="login-link" href="{r}account/index.html">Client login</a>'}
 </nav>'''
 
 def footer(r):
@@ -64,7 +80,7 @@ def footer(r):
       </div>
       <div><h2>Services</h2><ul><li><a href="{r}services.html#websites">Websites</a></li><li><a href="{r}business-tools.html">Business tools</a></li><li><a href="{r}services.html#care">Care plans</a></li><li><a href="{r}services.html#photo">Photography and drone</a></li><li><a href="{r}services.html#marketing">Marketing</a></li></ul></div>
       <div><h2>Work with me</h2><ul><li><a href="{r}book.html">Book a consultation</a></li><li><a href="{r}book.html#quote">Request a quote</a></li><li><a href="{r}work.html">Work and demos</a></li><li><a href="{r}about.html">About</a></li></ul></div>
-      <div><h2>Clients</h2><ul><li><a href="{r}account/index.html">Client login</a></li><li><a href="{r}pay.html">Pay an invoice</a></li><li><a href="{r}legal/payments.html">Payments and cancellations</a></li><li><a href="{r}legal/privacy.html">Privacy</a></li><li><a href="{r}legal/terms.html">Terms of service</a></li></ul></div>
+      <div><h2>Clients</h2><ul>{"" if LAUNCH and not FEATURES["accounts"] else f'<li><a href="{r}account/index.html">Client login</a></li>'}{"" if LAUNCH and not FEATURES["payments"] else f'<li><a href="{r}pay.html">Pay an invoice</a></li>'}<li><a href="{r}legal/payments.html">Payments and cancellations</a></li><li><a href="{r}legal/privacy.html">Privacy</a></li><li><a href="{r}legal/terms.html">Terms of service</a></li></ul></div>
     </div>
     <div class="foot-base"><span>&copy; <span data-year>2026</span> Lisette Colon</span><span>English and Spanish</span></div>
   </div>
@@ -75,19 +91,30 @@ def footer(r):
 def build(name):
     global OUT, FONTS, THEME_COLOR
     out, css, fonts, color, overrides = THEMES[name]
+    if LAUNCH: out = ROOT / "dist"
     OUT, THEME_COLOR = out, color
     FONTS = PRE + f'<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family={fonts}&display=swap">'
     if out != ROOT:
         if out.exists(): shutil.rmtree(out)
         shutil.copytree(ROOT / "assets", out / "assets")
-        (out / "assets/css/site.css").write_text((ROOT / "assets/css/site.css").read_text() + "\n" + css.read_text())
+        if css: (out / "assets/css/site.css").write_text((ROOT / "assets/css/site.css").read_text() + "\n" + css.read_text())
+    if LAUNCH:
+        cfg = (ROOT / "assets/js/config.js").read_text()
+        cfg = cfg.replace('stripeMode: "test"', 'stripeMode: "test",\n  contactMode: "email",\n  accounts: ' + str(FEATURES["accounts"]).lower() + ',\n  payments: ' + str(FEATURES["payments"]).lower())
+        (out / "assets/js/config.js").write_text(cfg)
+        for stub in ["projects.html","contact.html","projects"]:
+            src_stub = ROOT / stub
+            if src_stub.is_dir(): shutil.copytree(src_stub, out / stub)
+            elif src_stub.exists(): shutil.copy(src_stub, out / stub)
     for src in sorted(SRC.rglob("*.html")):
         rel = src.relative_to(SRC)
         if overrides and (overrides / rel).exists(): src = overrides / rel
         text = src.read_text()
         m = re.match(r"<!--meta (.*?)-->\n?", text)
         meta = dict(p.split("=",1) for p in m.group(1).split("|"))
+        meta["_rel"] = str(rel)
         body = text[m.end():]
+        if LAUNCH: body = launch_edits(str(rel), body)
         depth = len(rel.parts) - 1
         r = "../" * depth
         body = body.replace("{R}", r)
