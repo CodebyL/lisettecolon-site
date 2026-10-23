@@ -102,33 +102,25 @@
       if (!send) { render(true); return; }
       send.classList.add("pressed"); await wait(180); send.classList.remove("pressed");
       if (run !== busy) return;
-      // put the new card in place, invisible and collapsed, then grow its slot while a copy flies in from the phone
-      render(true);
-      var card = cols.querySelector(".tk.is-new"), first = cols.querySelector(".col");
-      var label = card.querySelector("small"); label.textContent = "New";
-      var h = card.offsetHeight;
-      card.style.opacity = "0"; card.style.overflow = "hidden";
-      var grow = card.animate([{ height: "0px", paddingTop: "0px", paddingBottom: "0px", marginBottom: "-8px", borderWidth: "0px" },
-                               { height: h + "px", paddingTop: "10px", paddingBottom: "10px", marginBottom: "0px", borderWidth: "1px" }],
-                              { duration: 700, easing: EASE });
-      var sr = stage.getBoundingClientRect(), a = send.getBoundingClientRect(), b = card.getBoundingClientRect();
+      // the original flight: a copy of the request travels from the phone's Send button into the "New" column
+      var first = cols.querySelector(".col");
+      var sr = stage.getBoundingClientRect(), a = send.getBoundingClientRect(), b = first.getBoundingClientRect();
       var fl = document.createElement("div"); fl.className = "flyer"; fl.setAttribute("aria-hidden", "true");
       fl.innerHTML = tk([d.card[0], d.card[1], "New"], "is-new");
-      fl.style.width = b.width + "px"; fl.style.left = (a.left - sr.left + a.width / 2 - b.width / 2) + "px"; fl.style.top = (a.top - sr.top - 16) + "px";
+      fl.style.width = Math.max(120, b.width - 16) + "px"; fl.style.left = (a.left - sr.left) + "px"; fl.style.top = (a.top - sr.top - 24) + "px";
       stage.appendChild(fl);
-      var dx = b.left - (a.left + a.width / 2 - b.width / 2), dy = b.top - (a.top - 16);
+      var dx = (b.left + 8) - a.left, dy = (b.top + 30) - (a.top - 24);
       var fly = fl.animate([
-        { opacity: 0, transform: "translate(0,12px) scale(.7)" },
-        { opacity: 1, transform: "translate(" + dx * 0.15 + "px," + (dy * 0.1 - 40) + "px) scale(.92)", offset: 0.3 },
+        { opacity: 0, transform: "translate(0,0) scale(.6)" },
+        { opacity: 1, transform: "translate(0,-32px) scale(.92)", offset: 0.25 },
         { opacity: 1, transform: "translate(" + dx + "px," + dy + "px) scale(1)" }
-      ], { duration: 1000, easing: EASE, fill: "forwards" });
+      ], { duration: 1100, easing: "cubic-bezier(.3,.7,.2,1)", fill: "forwards" });
       await new Promise(function (r) { fly.onfinish = r; fly.oncancel = r; });
       if (run !== busy) return;
-      card.style.opacity = ""; card.style.overflow = "";
-      fl.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 160, fill: "forwards" }).onfinish = function () { fl.remove(); };
-      grow.cancel();
-      await wait(900); if (run !== busy) return;
-      label.style.opacity = "0"; await wait(300); if (run !== busy) return;
+      fl.remove(); render(true);
+      var label = cols.querySelector(".tk.is-new small"); if (!label) return; label.textContent = "New";
+      await wait(700); if (run !== busy) return;
+      label.style.opacity = "0"; await wait(250); if (run !== busy) return;
       label.textContent = d.after; label.style.opacity = "";
     }
     render(false);
