@@ -11,8 +11,6 @@ PRE = '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="pre
 THEMES = {
   # name: (output folder, theme stylesheet added on top of site.css, Google Fonts query, theme colour, page overrides folder)
   "a": (ROOT, None, "DM+Mono:wght@400;500&family=Figtree:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400..600", "#faf7f5", None),
-  "b": (ROOT / "concept-b", ROOT / "themes/b.css", "Archivo:wdth,wght@62..125,400..900&family=IBM+Plex+Mono:wght@400;500;600", "#ffffff", ROOT / "src-b"),
-  "c": (ROOT / "concept-c", ROOT / "themes/c.css", "Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Hanken+Grotesk:wght@400;500;600;700", "#fffcfa", ROOT / "src-c"),
 }
 FONTS = ""
 THEME_COLOR = "#faf7f5"
