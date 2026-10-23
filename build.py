@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """Assemble pages from src/ with the shared header and footer.
 Each src file starts with: <!--meta title=...|desc=...|nav=...|noindex=0-->"""
-import os, re, pathlib
+import os, re, pathlib, hashlib
 ROOT = pathlib.Path(__file__).parent
 SRC = ROOT / "src"
+def ver(rel):
+    return hashlib.sha256((ROOT/rel).read_bytes()).hexdigest()[:8]
 FONTS = '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Figtree:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400..600&display=swap">'
 NAV = [("services","Services","services.html"),("tools","Business tools","business-tools.html"),("work","Work","work.html"),("about","About","about.html")]
 
@@ -20,7 +22,7 @@ def head(meta, r):
 <meta name="theme-color" content="#faf7f5">
 <link rel="icon" href="{r}assets/img/favicon.svg" type="image/svg+xml">
 {FONTS}
-<link rel="stylesheet" href="{r}assets/css/site.css">
+<link rel="stylesheet" href="{r}assets/css/site.css?v={ver('assets/css/site.css')}">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>'''
@@ -60,8 +62,8 @@ def footer(r):
     <div class="foot-base"><span>&copy; <span data-year>2026</span> Lisette Colon</span><span>English and Spanish</span></div>
   </div>
 </footer>
-<script src="{r}assets/js/config.js"></script>
-<script src="{r}assets/js/site.js"></script>'''
+<script src="{r}assets/js/config.js?v={ver('assets/js/config.js')}"></script>
+<script src="{r}assets/js/site.js?v={ver('assets/js/site.js')}"></script>'''
 
 for src in sorted(SRC.rglob("*.html")):
     rel = src.relative_to(SRC)
@@ -73,7 +75,7 @@ for src in sorted(SRC.rglob("*.html")):
     r = "../" * depth
     body = body.replace("{R}", r)
     extra_js = meta.get("js","")
-    scripts = "".join(f'<script src="{s.replace("{R}", r)}"></script>' for s in extra_js.split(",") if s)
+    scripts = "".join(f'<script src="{s.replace("{R}", r)}{"?v="+ver(s.replace("{R}","")) if s.startswith("{R}") else ""}"></script>' for s in extra_js.split(",") if s)
     bare = meta.get("bare","0") == "1"
     out = head(meta, r) + ("" if bare else header(meta, r)) + "\n<main id=\"main\">\n" + body + "\n</main>\n" + ("" if bare else footer(r)) + scripts + "\n</body>\n</html>\n"
     dest = ROOT / rel
