@@ -14,5 +14,6 @@
     town.required=inPerson; townH.textContent=inPerson?"Where should we meet?":"Optional.";
   }
   document.querySelectorAll("input[name=fmt]").forEach(function(r){r.addEventListener("change",update);});
+  try{var want=new URLSearchParams(location.search).get("format");var pick=want&&document.querySelector("input[name=fmt][value='"+want.replace(/[^a-z_]/g,"")+"']");if(pick)pick.checked=true;}catch(e){}
   update();
 })();

@@ -282,6 +282,7 @@ table.data tr:last-child td{border-bottom:0}
 }
 @media (max-width:640px){
   body{font-size:16px}
+  .btn{white-space:normal;text-align:center}
   .lede{font-size:18px}
   .tasks{grid-template-columns:minmax(0,1fr)}
   .work-grid,.grid-2,.options,.kv{grid-template-columns:minmax(0,1fr)}

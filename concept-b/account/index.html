@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Client account · Lisette Colon</title>
+<meta name="description" content="Sign in to see your projects, agreements, invoices, payments and plans.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="../assets/css/site.css?v=9f696790">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a><header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="../index.html">Lisette Colon</a>
+    <nav class="nav" aria-label="Main"><a href="../services.html">Services</a><a href="../business-tools.html">Business tools</a><a href="../work.html">Work</a><a href="../about.html">About</a></nav>
+    <a class="login-link" href="../account/index.html">Client login</a>
+    <a class="btn sm" href="../book.html">Book a consultation</a>
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="mobile-nav"><span>Menu</span></button>
+  </div>
+</header>
+<nav class="mobile-nav" id="mobile-nav" aria-label="Main" hidden>
+  <a href="../index.html">Home</a><a href="../services.html">Services</a><a href="../business-tools.html">Business tools</a><a href="../work.html">Work</a><a href="../about.html">About</a>
+  <a class="btn" href="../book.html">Book a consultation</a>
+  <a class="login-link" href="../account/index.html">Client login</a>
+</nav>
+<main id="main">
+<div class="wrap" id="acct">
+  <section class="page-hero" id="signin-view" aria-labelledby="si-t" style="max-width:560px;padding-bottom:var(--s9)">
+    <span class="label">Client account</span>
+    <h1 class="d2" id="si-t">Sign in</h1>
+    <p class="body">See your projects, agreements, invoices, receipts and plans. New clients get an invitation by email.</p>
+    <p class="status info" id="cfg-note" hidden>Client accounts are being set up and aren't open yet. For anything about your project, email hi@lisettecolon.com.</p>
+    <form class="panel form" id="signin-form" novalidate>
+      <div class="field"><label for="si-email">Email</label><input class="input" id="si-email" type="email" autocomplete="email" required><span class="err" hidden></span></div>
+      <div class="field"><label for="si-pass">Password</label><input class="input" id="si-pass" type="password" autocomplete="current-password"><span class="hint">Or leave it empty and use an email link.</span></div>
+      <div class="actions"><button class="btn" type="submit" data-act="password">Sign in</button><button class="btn ghost" type="button" id="si-link">Email me a sign-in link</button></div>
+      <button class="link small" type="button" id="si-forgot" style="background:none;border:0;padding:0;cursor:pointer;align-self:flex-start">Forgot your password?</button>
+      <p class="status" role="status" hidden></p>
+    </form>
+  </section>
+
+  <section class="page-hero" id="setpass-view" hidden aria-labelledby="sp-t" style="max-width:560px;padding-bottom:var(--s9)">
+    <span class="label">Client account</span>
+    <h1 class="d2" id="sp-t">Choose a password</h1>
+    <form class="panel form" id="setpass-form" novalidate>
+      <div class="field"><label for="sp-pass">New password</label><input class="input" id="sp-pass" type="password" autocomplete="new-password" minlength="10" required><span class="hint">At least 10 characters.</span><span class="err" hidden></span></div>
+      <button class="btn" type="submit">Save password</button>
+      <p class="status" role="status" hidden></p>
+    </form>
+  </section>
+
+  <div id="app-view" hidden>
+    <div class="page-hero" style="padding-bottom:0">
+      <div class="head-row"><div class="stack-sm"><span class="label" id="who"></span><h1 class="d2" id="biz-name">Your account</h1></div>
+      <div class="actions"><label class="sr" for="client-pick">Business</label><select class="select" id="client-pick" hidden style="width:auto"></select><button class="btn ghost sm" type="button" id="signout">Sign out</button></div></div>
+    </div>
+    <div class="app">
+      <nav class="app-nav" aria-label="Account sections">
+        <button type="button" data-tab="overview" aria-current="true">Overview</button>
+        <button type="button" data-tab="projects">Projects</button>
+        <button type="button" data-tab="documents">Proposals and agreements</button>
+        <button type="button" data-tab="billing">Invoices and payments</button>
+        <button type="button" data-tab="plans">Plans</button>
+        <button type="button" data-tab="bookings">Meetings</button>
+        <button type="button" data-tab="support">Support</button>
+        <button type="button" data-tab="profile">Contact details</button>
+      </nav>
+      <div id="panels" aria-live="polite"></div>
+    </div>
+  </div>
+</div>
+
+</main>
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="stack-sm">
+        <span class="foot-brand">Lisette Colon</span>
+        <p>Websites and business tools for local businesses. Based near Hicksville, New York.</p>
+        <div class="copy-row"><span>hi@lisettecolon.com</span><button class="copy-btn" type="button" data-copy="hi@lisettecolon.com">Copy</button></div>
+        <div class="copy-row"><span>(917) 960-4871</span><button class="copy-btn" type="button" data-copy="9179604871">Copy</button></div>
+      </div>
+      <div><h2>Services</h2><ul><li><a href="../services.html#websites">Websites</a></li><li><a href="../business-tools.html">Business tools</a></li><li><a href="../services.html#care">Care plans</a></li><li><a href="../services.html#photo">Photography and drone</a></li><li><a href="../services.html#marketing">Marketing</a></li></ul></div>
+      <div><h2>Work with me</h2><ul><li><a href="../book.html">Book a consultation</a></li><li><a href="../book.html#quote">Request a quote</a></li><li><a href="../work.html">Work and demos</a></li><li><a href="../about.html">About</a></li></ul></div>
+      <div><h2>Clients</h2><ul><li><a href="../account/index.html">Client login</a></li><li><a href="../pay.html">Pay an invoice</a></li><li><a href="../legal/payments.html">Payments and cancellations</a></li><li><a href="../legal/privacy.html">Privacy</a></li><li><a href="../legal/terms.html">Terms of service</a></li></ul></div>
+    </div>
+    <div class="foot-base"><span>&copy; <span data-year>2026</span> Lisette Colon</span><span>English and Spanish</span></div>
+  </div>
+</footer>
+<script src="../assets/js/config.js?v=06315cf4"></script>
+<script src="../assets/js/site.js?v=1f699335"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"></script><script src="../assets/js/app-common.js?v=c10b8103"></script><script src="../assets/js/account.js?v=ea2f644e"></script>
+</body>
+</html>

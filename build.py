@@ -1,12 +1,21 @@
 #!/usr/bin/env python3
 """Assemble pages from src/ with the shared header and footer.
 Each src file starts with: <!--meta title=...|desc=...|nav=...|noindex=0-->"""
-import os, re, pathlib, hashlib
+import os, re, pathlib, hashlib, shutil
 ROOT = pathlib.Path(__file__).parent
 SRC = ROOT / "src"
+OUT = ROOT
 def ver(rel):
-    return hashlib.sha256((ROOT/rel).read_bytes()).hexdigest()[:8]
-FONTS = '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Figtree:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400..600&display=swap">'
+    return hashlib.sha256((OUT/rel).read_bytes()).hexdigest()[:8]
+PRE = '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+THEMES = {
+  # name: (output folder, theme stylesheet added on top of site.css, Google Fonts query, theme colour, page overrides folder)
+  "a": (ROOT, None, "DM+Mono:wght@400;500&family=Figtree:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400..600", "#faf7f5", None),
+  "b": (ROOT / "concept-b", ROOT / "themes/b.css", "Archivo:wdth,wght@62..125,400..900&family=IBM+Plex+Mono:wght@400;500;600", "#ffffff", ROOT / "src-b"),
+  "c": (ROOT / "concept-c", ROOT / "themes/c.css", "Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Hanken+Grotesk:wght@400;500;600;700", "#fffcfa", ROOT / "src-c"),
+}
+FONTS = ""
+THEME_COLOR = "#faf7f5"
 NAV = [("services","Services","services.html"),("tools","Business tools","business-tools.html"),("work","Work","work.html"),("about","About","about.html")]
 
 def head(meta, r):
@@ -19,7 +28,7 @@ def head(meta, r):
 <title>{meta["title"]}</title>
 <meta name="description" content="{meta["desc"]}">
 {robots}
-<meta name="theme-color" content="#faf7f5">
+<meta name="theme-color" content="{THEME_COLOR}">
 <link rel="icon" href="{r}assets/img/favicon.svg" type="image/svg+xml">
 {FONTS}
 <link rel="stylesheet" href="{r}assets/css/site.css?v={ver('assets/css/site.css')}">
@@ -65,20 +74,32 @@ def footer(r):
 <script src="{r}assets/js/config.js?v={ver('assets/js/config.js')}"></script>
 <script src="{r}assets/js/site.js?v={ver('assets/js/site.js')}"></script>'''
 
-for src in sorted(SRC.rglob("*.html")):
-    rel = src.relative_to(SRC)
-    text = src.read_text()
-    m = re.match(r"<!--meta (.*?)-->\n?", text)
-    meta = dict(p.split("=",1) for p in m.group(1).split("|"))
-    body = text[m.end():]
-    depth = len(rel.parts) - 1
-    r = "../" * depth
-    body = body.replace("{R}", r)
-    extra_js = meta.get("js","")
-    scripts = "".join(f'<script src="{s.replace("{R}", r)}{"?v="+ver(s.replace("{R}","")) if s.startswith("{R}") else ""}"></script>' for s in extra_js.split(",") if s)
-    bare = meta.get("bare","0") == "1"
-    out = head(meta, r) + ("" if bare else header(meta, r)) + "\n<main id=\"main\">\n" + body + "\n</main>\n" + ("" if bare else footer(r)) + scripts + "\n</body>\n</html>\n"
-    dest = ROOT / rel
-    dest.parent.mkdir(parents=True, exist_ok=True)
-    dest.write_text(out)
-    print("built", rel)
+def build(name):
+    global OUT, FONTS, THEME_COLOR
+    out, css, fonts, color, overrides = THEMES[name]
+    OUT, THEME_COLOR = out, color
+    FONTS = PRE + f'<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family={fonts}&display=swap">'
+    if out != ROOT:
+        if out.exists(): shutil.rmtree(out)
+        shutil.copytree(ROOT / "assets", out / "assets")
+        (out / "assets/css/site.css").write_text((ROOT / "assets/css/site.css").read_text() + "\n" + css.read_text())
+    for src in sorted(SRC.rglob("*.html")):
+        rel = src.relative_to(SRC)
+        if overrides and (overrides / rel).exists(): src = overrides / rel
+        text = src.read_text()
+        m = re.match(r"<!--meta (.*?)-->\n?", text)
+        meta = dict(p.split("=",1) for p in m.group(1).split("|"))
+        body = text[m.end():]
+        depth = len(rel.parts) - 1
+        r = "../" * depth
+        body = body.replace("{R}", r)
+        extra_js = meta.get("js","")
+        scripts = "".join(f'<script src="{s.replace("{R}", r)}{"?v="+ver(s.replace("{R}","")) if s.startswith("{R}") else ""}"></script>' for s in extra_js.split(",") if s)
+        bare = meta.get("bare","0") == "1"
+        page = head(meta, r) + ("" if bare else header(meta, r)) + "\n<main id=\"main\">\n" + body + "\n</main>\n" + ("" if bare else footer(r)) + scripts + "\n</body>\n</html>\n"
+        dest = out / rel
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_text(page)
+    print("built", name, "->", out.relative_to(ROOT) if out != ROOT else ".")
+
+for name in THEMES: build(name)
