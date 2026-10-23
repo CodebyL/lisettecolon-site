@@ -293,3 +293,9 @@ table.data tr:last-child td{border-bottom:0}
 #demo-cols{overflow-x:auto}
 .split.demo{grid-template-columns:minmax(0,.8fr) minmax(0,1.6fr)}
 @media (max-width:960px){.split.demo{grid-template-columns:minmax(0,1fr)}}
+
+/* About page: text leads, photo stays small */
+.about-hero{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:var(--s8);align-items:center}
+.portrait-sm{width:100%;max-width:280px;justify-self:end}
+@media (max-width:960px){.about-hero{grid-template-columns:minmax(0,1fr) 220px;gap:var(--s6)}.portrait-sm{max-width:220px}}
+@media (max-width:640px){.about-hero{grid-template-columns:minmax(0,1fr)}.portrait-sm{max-width:200px;justify-self:start;grid-row:1}}
