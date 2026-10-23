@@ -85,45 +85,66 @@
       }).join("");
       if (cap) cap.textContent = d.caption;
     }
-    function clear() { timers.forEach(clearTimeout); timers = []; var f = stage.querySelector(".flyer"); if (f) f.remove(); }
-    function play() {
-      clear(); render(false);
+    var EASE = "cubic-bezier(.22,1,.36,1)", busy = 0;
+    function clear() { busy++; timers.forEach(clearTimeout); timers = []; stage.querySelectorAll(".flyer").forEach(function (f) { f.remove(); }); }
+    function wait(ms) { return new Promise(function (r) { timers.push(setTimeout(r, ms)); }); }
+    async function play(swap) {
+      clear(); var run = busy;
+      if (swap && !reduce) {
+        stage.classList.add("swapping"); if (cap) cap.style.opacity = "0";
+        await wait(280); if (run !== busy) return;
+      }
+      render(false); stage.classList.remove("swapping"); if (cap) cap.style.opacity = "";
       if (reduce || !Element.prototype.animate) { render(true); return; }
       var d = DATA[cur];
-      timers.push(setTimeout(function () {
-        var send = phone.querySelector(".ph-send"), first = cols.querySelector(".col");
-        if (!send || !first) { render(true); return; }
-        var sr = stage.getBoundingClientRect(), a = send.getBoundingClientRect(), b = first.getBoundingClientRect();
-        var fl = document.createElement("div"); fl.className = "flyer"; fl.setAttribute("aria-hidden", "true");
-        fl.innerHTML = tk([d.card[0], d.card[1], "New"], "is-new");
-        fl.style.width = Math.max(120, b.width - 16) + "px"; fl.style.left = (a.left - sr.left) + "px"; fl.style.top = (a.top - sr.top - 24) + "px";
-        stage.appendChild(fl);
-        var dx = (b.left + 8) - a.left, dy = (b.top + 30) - (a.top - 24);
-        var an = fl.animate([
-          { opacity: 0, transform: "translate(0,0) scale(.6)" },
-          { opacity: 1, transform: "translate(0,-32px) scale(.92)", offset: 0.25 },
-          { opacity: 1, transform: "translate(" + dx + "px," + dy + "px) scale(1)" }
-        ], { duration: 1100, easing: "cubic-bezier(.3,.7,.2,1)", fill: "forwards" });
-        an.onfinish = function () {
-          fl.remove(); render(true);
-          var s = cols.querySelector(".tk.is-new small");
-          if (s) { s.textContent = "New"; timers.push(setTimeout(function () { s.textContent = d.after; }, 700)); }
-        };
-      }, 450));
+      await wait(swap ? 500 : 600); if (run !== busy) return;
+      var send = phone.querySelector(".ph-send");
+      if (!send) { render(true); return; }
+      send.classList.add("pressed"); await wait(180); send.classList.remove("pressed");
+      if (run !== busy) return;
+      // put the new card in place, invisible and collapsed, then grow its slot while a copy flies in from the phone
+      render(true);
+      var card = cols.querySelector(".tk.is-new"), first = cols.querySelector(".col");
+      var label = card.querySelector("small"); label.textContent = "New";
+      var h = card.offsetHeight;
+      card.style.opacity = "0"; card.style.overflow = "hidden";
+      var grow = card.animate([{ height: "0px", paddingTop: "0px", paddingBottom: "0px", marginBottom: "-8px", borderWidth: "0px" },
+                               { height: h + "px", paddingTop: "10px", paddingBottom: "10px", marginBottom: "0px", borderWidth: "1px" }],
+                              { duration: 700, easing: EASE });
+      var sr = stage.getBoundingClientRect(), a = send.getBoundingClientRect(), b = card.getBoundingClientRect();
+      var fl = document.createElement("div"); fl.className = "flyer"; fl.setAttribute("aria-hidden", "true");
+      fl.innerHTML = tk([d.card[0], d.card[1], "New"], "is-new");
+      fl.style.width = b.width + "px"; fl.style.left = (a.left - sr.left + a.width / 2 - b.width / 2) + "px"; fl.style.top = (a.top - sr.top - 16) + "px";
+      stage.appendChild(fl);
+      var dx = b.left - (a.left + a.width / 2 - b.width / 2), dy = b.top - (a.top - 16);
+      var fly = fl.animate([
+        { opacity: 0, transform: "translate(0,12px) scale(.7)" },
+        { opacity: 1, transform: "translate(" + dx * 0.15 + "px," + (dy * 0.1 - 40) + "px) scale(.92)", offset: 0.3 },
+        { opacity: 1, transform: "translate(" + dx + "px," + dy + "px) scale(1)" }
+      ], { duration: 1000, easing: EASE, fill: "forwards" });
+      await new Promise(function (r) { fly.onfinish = r; fly.oncancel = r; });
+      if (run !== busy) return;
+      card.style.opacity = ""; card.style.overflow = "";
+      fl.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 160, fill: "forwards" }).onfinish = function () { fl.remove(); };
+      grow.cancel();
+      await wait(900); if (run !== busy) return;
+      label.style.opacity = "0"; await wait(300); if (run !== busy) return;
+      label.textContent = d.after; label.style.opacity = "";
     }
     render(false);
     root.querySelectorAll("[data-stage-pick]").forEach(function (b) {
       b.addEventListener("click", function () {
         root.querySelectorAll("[data-stage-pick]").forEach(function (x) { x.setAttribute("aria-selected", x === b ? "true" : "false"); });
-        cur = b.getAttribute("data-stage-pick"); play();
+        if (cur === b.getAttribute("data-stage-pick")) return;
+        cur = b.getAttribute("data-stage-pick"); play(true);
       });
     });
     var replay = root.querySelector("[data-stage-replay]");
-    if (replay) replay.addEventListener("click", play);
+    if (replay) replay.addEventListener("click", function () { play(false); });
     if ("IntersectionObserver" in window) {
-      var seen = false, o = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting && !seen) { seen = true; play(); o.disconnect(); } }); }, { threshold: 0.4 });
+      var seen = false, o = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting && !seen) { seen = true; play(false); o.disconnect(); } }); }, { threshold: 0.4 });
       o.observe(stage);
-    } else play();
+    } else play(false);
     window.addEventListener("resize", function () { if (stage.querySelector(".flyer")) { clear(); render(true); } });
   });
 
