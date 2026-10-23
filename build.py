@@ -100,6 +100,8 @@ def build(name):
         if css: (out / "assets/css/site.css").write_text((ROOT / "assets/css/site.css").read_text() + "\n" + css.read_text())
     if LAUNCH:
         cfg = (ROOT / "assets/js/config.js").read_text()
+        # Until the admin login is switched on, launch forms open the visitor's email app so no request goes unseen.
+        if not FEATURES["accounts"]: cfg = re.sub(r'functionsUrl: "[^"]*"', 'functionsUrl: ""', cfg)
         cfg = cfg.replace('stripeMode: "test"', 'stripeMode: "test",\n  contactMode: "email",\n  accounts: ' + str(FEATURES["accounts"]).lower() + ',\n  payments: ' + str(FEATURES["payments"]).lower())
         (out / "assets/js/config.js").write_text(cfg)
         for stub in ["projects.html","contact.html","projects"]:
