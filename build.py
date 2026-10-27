@@ -24,7 +24,7 @@ def launch_edits(rel, body):
     if not FEATURES["payments"]:
         body = re.sub(r'href="(\{R\}|[./]*)checkout\.html\?item=([a-z-]+)">[^<]+<', lambda m: f'href="{m.group(1)}book.html?service={SERVICE_FOR.get(m.group(2),"other")}#quote">Ask about booking<', body)
         body = body.replace("Fixed-price work can be reserved here without a meeting. Every deposit counts toward the total, and you see the full amount, what's due now and any future charges before you pay.",
-                            "Online booking and payment are being set up. For now, ask about any service with the quote form, by phone or by text, and I'll send a secure payment link. Every deposit counts toward the total.")
+                            "Online payment will be added later. For now, ask about any service with the quote form, by phone or by text, and I'll confirm the price, the deposit and how to pay. Every deposit counts toward the total.")
         body = body.replace('<p class="body">Have an invoice from me? <a class="link" href="{R}pay.html">Pay an invoice</a>.</p>', "")
         body = body.replace('You pay the deposit and send your logo, photos and details. Your client account opens.', 'You pay the deposit and send your logo, photos and details.')
     return body
@@ -110,6 +110,8 @@ def build(name):
             elif src_stub.exists(): shutil.copy(src_stub, out / stub)
     for src in sorted(SRC.rglob("*.html")):
         rel = src.relative_to(SRC)
+        # Checkout is off for now (Lisette, Oct 26): leave the payment pages out of the launch build entirely.
+        if LAUNCH and not FEATURES["payments"] and str(rel) in {"checkout.html", "pay.html"}: continue
         if overrides and (overrides / rel).exists(): src = overrides / rel
         text = src.read_text()
         m = re.match(r"<!--meta (.*?)-->\n?", text)
